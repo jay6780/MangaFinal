@@ -1,0 +1,16 @@
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion 33
+
+  defaultConfig {
+    minSdkVersion 14
+    targetSdkVersion 28
+  }
+}
+
+dependencies {
+  implementation 'androidx.annotation:annotation:1.0.0'
+  testImplementation 'junit:junit:4.12'
+}
+

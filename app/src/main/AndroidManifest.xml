@@ -18,6 +18,10 @@
         android:theme="@style/Theme.Manga"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.BookMarkedActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".Activity.ViewChapterActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

@@ -40,6 +40,7 @@ import java.util.List;
 public class HomePageFragment extends Fragment implements MangaContract.View, View.OnClickListener, GenreNameListerner {
     private RecyclerView page_recycler,genre_recycler;
     private MangaContract.Presenter mangaPresenter;
+    private ImageView expandIcon;
     private PageAdapter pageAdapter;
     private PageAdapter2 pageAdapter2;
     private PageAdapter3 pageAdapter3;
@@ -58,6 +59,7 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
     private SwipeRefreshLayout swipe;
     private boolean isRefresh = false;
     private boolean isError = false;
+    private boolean isExpand = false;
     private GenreAdapter genreAdapter;
     private List<String> genrelist = new ArrayList<>();
     private String name = "";
@@ -112,10 +114,14 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
         searchEditText.setText("");
         datalist.clear();
         mangalist.clear();
+        isExpand = false;
         genreList.clear();
+        expandIcon.setImageResource(R.mipmap.expand_more);
         mangaPresenter.getGenreList();
         genre_recycler.setVisibility(View.VISIBLE);
-        genre_recycler.smoothScrollToPosition(0);
+        expandIcon.setVisibility(View.VISIBLE);
+        genreAdapter.expand(false);
+        genre_recycler.scrollToPosition(0);
         initRecycler();
     }
 
@@ -160,6 +166,7 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
 
 
     private void initView(View view) {
+        expandIcon = view.findViewById(R.id.expandIcon);
         swipe = view.findViewById(R.id.swipe);
         searchEditText = view.findViewById(R.id.search);
         btn_send = view.findViewById(R.id.btn_send);
@@ -169,6 +176,8 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
         genre_recycler.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         genreAdapter = new GenreAdapter(getContext(),genrelist,this);
         genre_recycler.setAdapter(genreAdapter);
+        expandIcon.setOnClickListener(this);
+        expandIcon.setImageResource(isExpand? R.mipmap.expand_less : R.mipmap.expand_more);
     }
 
     @Override
@@ -269,8 +278,24 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
                 page_recycler.setAdapter(pageAdapter2);
                 mangaPresenter.loadSearch(searchQuery);
                 genre_recycler.setVisibility(View.GONE);
+                expandIcon.setVisibility(View.GONE);
+                break;
+            case R.id.expandIcon:
+                isExpand = !isExpand;
+                expandIcon.setImageResource(isExpand ? R.mipmap.expand_less : R.mipmap.expand_more);
+
+                if(isExpand){
+                    genre_recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
+                    genreAdapter.expand(true);
+                }else{
+                    genre_recycler.setLayoutManager(
+                            new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
+                    );
+                    genreAdapter.expand(false);
+                }
                 break;
         }
+
     }
 
     @Override
@@ -278,6 +303,7 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
       if(genreName.isEmpty()){
           return;
       }
+
         name = genreName;
         page = 1;
         genreList.clear();
@@ -289,7 +315,22 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
         pageAdapter3 = new PageAdapter3(getContext(), genreList);
         page_recycler.setLayoutManager(new GridLayoutManager(getContext(), 2));
         page_recycler.setAdapter(pageAdapter3);
+
     }
+
+    @Override
+    public void isExpand(boolean dismiss, int position) {
+        if (dismiss) {
+            genre_recycler.setLayoutManager(
+                    new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
+            );
+            isExpand = false;
+            expandIcon.setImageResource(R.mipmap.expand_more);
+            genre_recycler.scrollToPosition(position);
+        }
+
+    }
+
 
     public boolean handleKeyDown(int keyCode) {
         switch (keyCode) {
@@ -306,4 +347,7 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
     private void scrollRecyclerViewBy(int pixels) {
         page_recycler.smoothScrollBy(0, pixels);
     }
+
+
+
 }

@@ -20,10 +20,16 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.ViewHolder> 
     Context context;
     int selectPosition = -1;
     private GenreNameListerner genreNameListerner;
+    private boolean isLess = false;
 
     public void firstHighlight(int firstPosition) {
         selectPosition = firstPosition;
         genreNameListerner.getName(genreNameList.get(firstPosition));
+        notifyDataSetChanged();
+    }
+
+    public void expand(boolean isExpand) {
+        isLess = isExpand;
         notifyDataSetChanged();
     }
 
@@ -39,7 +45,6 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.ViewHolder> 
         this.context = context;
         this.genreNameList = genreNameList;
         this.genreNameListerner = genreNameListerner;
-
     }
 
     @Override
@@ -61,6 +66,15 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.ViewHolder> 
             holder.genre_name.setTextColor(Color.BLACK);
         }
 
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams)  holder.genre_name.getLayoutParams();
+        if(isLess){
+            params.setMargins(20,15,20,10);
+        }else{
+            params.setMargins(5,0,5,0);
+        }
+        holder.genre_name.setLayoutParams(params);
+
+
         holder.genre_name.setText(genreName);
 
         holder.itemView.setOnClickListener(v -> {
@@ -70,6 +84,8 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.ViewHolder> 
             } else {
                 selectPosition = position;
                 genreNameListerner.getName(genreName);
+                isLess = false;
+                genreNameListerner.isExpand(true,selectPosition);
             }
             notifyDataSetChanged();
         });

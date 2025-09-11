@@ -9,8 +9,8 @@ android {
         applicationId "com.m.manga"
         minSdk 28
         targetSdk 34
-        versionCode 16
-        versionName "1.6"
+        versionCode 17
+        versionName "1.7"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

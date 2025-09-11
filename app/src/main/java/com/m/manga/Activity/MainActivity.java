@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, GenreContract.View {
-    private ImageView btn_back5, moon,file_icon,App_logo;
-    private TextView value_dark;
+    private ImageView btn_back5, moon,file_icon,App_logo,book_marked_icon;
+    private TextView value_dark,book_marked_txt;
     private RelativeLayout manyakol_title;
     private SharedPreferences appSettingsPrefs;
     private static final String PREF = "AppSettingsPrefs";
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LinearLayout navigationView,ll_darkmode,ll_file;
     private View viewSeperator;
     private FrameLayout fragment_container;
-    private LinearLayout ll_defaultbg;
+    private LinearLayout ll_defaultbg,ll_bookmarked;
     private GenreContract.Presenter genrePresenter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +83,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         file_icon = findViewById(R.id.file_icon);
         App_logo = findViewById(R.id.App_logo);
         viewSeperator = findViewById(R.id.viewSeperator);
+        ll_bookmarked = findViewById(R.id.ll_bookmarked);
+        book_marked_icon = findViewById(R.id.book_marked_icon);
+        book_marked_txt = findViewById(R.id.book_marked_txt);
+
         ll_file.setOnClickListener(this);
         btn_back5.setOnClickListener(this);
         ll_darkmode.setOnClickListener(this);
+        ll_bookmarked.setOnClickListener(this);
         MyApplication.clearAllGlideCache();
         Glide.with(MainActivity.this)
                 .load(R.mipmap.app_logo)
@@ -167,17 +172,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             btn_back5.setImageResource(R.mipmap.hamburger);
             moon.setImageResource(R.mipmap.moonlight);
             value_dark.setText("Dark mode");
+            book_marked_txt.setTextColor(Color.parseColor("#ffffff"));
             ll_defaultbg.setBackgroundColor(Color.parseColor("#262626"));
             viewSeperator.setBackgroundColor(getResources().getColor(R.color.white));
             file_icon.setImageResource(R.mipmap.media_white);
+            book_marked_icon.setImageResource(R.mipmap.bookmark_white);
             navigationView.setBackgroundColor(Color.parseColor("#262626"));
             manyakol_title.setBackgroundColor(Color.parseColor("#262626"));
         } else {
             btn_back5.setImageResource(R.mipmap.hamburger_black);
             moon.setImageResource(R.mipmap.moon_dark);
+            book_marked_txt.setTextColor(Color.parseColor("#000000"));
             value_dark.setText("Light mode");
             ll_defaultbg.setBackgroundColor(Color.parseColor("#EAEFEF"));
             viewSeperator.setBackgroundColor(getResources().getColor(R.color.black));
+            book_marked_icon.setImageResource(R.mipmap.bookmark_black);
             file_icon.setImageResource(R.mipmap.media_black);
             navigationView.setBackgroundColor(Color.parseColor("#EAEFEF"));
             manyakol_title.setBackgroundColor(Color.parseColor("#EAEFEF"));
@@ -227,6 +236,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (currentFragment instanceof ThemeChangeListener) {
                     ((ThemeChangeListener) currentFragment).onThemeChanged(!currentDarkMode);
                 }
+                break;
+            case R.id.ll_bookmarked:
+                startActivity(new Intent(this, BookMarkedActivity.class));
                 break;
         }
     }

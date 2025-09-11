@@ -67,7 +67,7 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
         animeTitle = getIntent().getStringExtra("animeTitle");
         Id = getIntent().getStringExtra("Id");
 
-        InformationAdapter adapter = new InformationAdapter(getSupportFragmentManager(), Id,animeTitle,desc);
+        InformationAdapter adapter = new InformationAdapter(getSupportFragmentManager(), Id,animeTitle,desc,thumbUrl);
         viewPager.setAdapter(adapter);
         refresh_btn.setOnClickListener(this);
         btn_back5.setOnClickListener(this);

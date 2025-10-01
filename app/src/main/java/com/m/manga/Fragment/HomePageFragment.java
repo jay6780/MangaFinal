@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -63,6 +65,9 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
     private GenreAdapter genreAdapter;
     private List<String> genrelist = new ArrayList<>();
     private String name = "";
+    private RelativeLayout rl_view;
+    private int lastPosition;
+    private TextView genreTxt;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -166,9 +171,11 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
 
 
     private void initView(View view) {
+        rl_view = view.findViewById(R.id.rl_view);
         expandIcon = view.findViewById(R.id.expandIcon);
         swipe = view.findViewById(R.id.swipe);
         searchEditText = view.findViewById(R.id.search);
+        genreTxt = view.findViewById(R.id.genreTxt);
         btn_send = view.findViewById(R.id.btn_send);
         page_recycler = view.findViewById(R.id.page_recycler);
         btn_send.setOnClickListener(this);
@@ -283,20 +290,53 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
             case R.id.expandIcon:
                 isExpand = !isExpand;
                 expandIcon.setImageResource(isExpand ? R.mipmap.expand_less : R.mipmap.expand_more);
+                genreTxt.setVisibility(isExpand? View.VISIBLE : View.GONE);
+                RelativeLayout.LayoutParams params;
 
-                if(isExpand){
+                if (isExpand) {
+                    params = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.MATCH_PARENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(0,0, 5, 0);
+                    params.addRule(RelativeLayout.BELOW, expandIcon.getId());
+
+                    genre_recycler.setLayoutParams(params);
                     genre_recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
                     genreAdapter.expand(true);
-                }else{
+
+                } else {
+                    params = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.MATCH_PARENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.addRule(RelativeLayout.LEFT_OF, expandIcon.getId());
+                    params.addRule(RelativeLayout.BELOW, rl_view.getId());
+
+                    genre_recycler.setLayoutParams(params);
+
+                    RelativeLayout.LayoutParams iconParams =
+                            new RelativeLayout.LayoutParams(dpToPx(35),dpToPx(35));
+                    iconParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    iconParams.addRule(RelativeLayout.BELOW, rl_view.getId());
+                    iconParams.setMargins(0, dpToPx(10), 5, 0);
+                    expandIcon.setLayoutParams(iconParams);
+
                     genre_recycler.setLayoutManager(
                             new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
                     );
                     genreAdapter.expand(false);
                 }
+                genre_recycler.scrollToPosition(lastPosition);
                 break;
-        }
 
+
+        }
     }
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
+    }
+
 
     @Override
     public void getName(String genreName) {
@@ -327,6 +367,7 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
             isExpand = false;
             expandIcon.setImageResource(R.mipmap.expand_more);
             genre_recycler.scrollToPosition(position);
+            lastPosition = position;
         }
 
     }

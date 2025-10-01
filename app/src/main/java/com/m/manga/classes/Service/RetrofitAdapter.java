@@ -3,6 +3,8 @@ package com.m.manga.classes.Service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -17,6 +19,14 @@ public class RetrofitAdapter {
 
     public static synchronized Retrofit getInstance() {
         boolean isdev = false;
+
+        OkHttpClient timeout = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .callTimeout(0, TimeUnit.SECONDS)
+                .build();
+
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(new PrettyLoggingInterceptor())
                 .addInterceptor(new HttpLoggingInterceptor()
@@ -37,6 +47,7 @@ public class RetrofitAdapter {
             }else{
                 retrofit = new Retrofit.Builder()
                         .baseUrl(BASE_URL)
+                        .client(timeout)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                         .build();

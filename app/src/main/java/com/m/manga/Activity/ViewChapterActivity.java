@@ -15,12 +15,15 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.m.manga.Adapter.ImageAdapter;
 import com.m.manga.Presenter.MangaImagePresenter;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.View.MangaDetailUrlsContract;
 import com.m.manga.classes.ApiBean;
 import com.m.manga.classes.MangaImageBean;
@@ -43,6 +46,7 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
     private static final String NIGHT_MODE = "NightMode";
     private View viewSeperator;
     private ImageView delete_btn;
+    private TextView title;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +57,7 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
         btn_back5 = findViewById(R.id.btn_back5);
         linear_bg = findViewById(R.id.linear_bg);
         delete_btn = findViewById(R.id.delete_btn);
+        title = findViewById(R.id.title);
         chapterImageRecycler = findViewById(R.id.chapterImageRecycler);
         chapterImageRecycler.setLayoutManager(new LinearLayoutManager(this));
         imageAdapter = new ImageAdapter(this,imageUrls);
@@ -66,6 +71,7 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
         updateUi(isNightModeOn);
         delete_btn.setOnClickListener(v -> Refresh());
         btn_back5.setOnClickListener(v -> finish());
+        title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
     }
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
@@ -88,11 +94,13 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
         if (isDarkMode) {
             delete_btn.setImageResource(R.mipmap.refresh_white);
             btn_back5.setImageResource(R.mipmap.back_white);
+            title.setTextColor(Color.parseColor("#ffffff"));
             viewSeperator.setBackgroundColor(Color.parseColor("#ffffff"));
             linear_bg.setBackgroundColor(Color.parseColor("#262626"));
         } else {
             delete_btn.setImageResource(R.mipmap.refresh_black);
             btn_back5.setImageResource(R.mipmap.back_black);
+            title.setTextColor(Color.parseColor("#000000"));
             viewSeperator.setBackgroundColor(Color.parseColor("#000000"));
             linear_bg.setBackgroundColor(Color.parseColor("#EAEFEF"));
 

@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.m.manga.Activity.InformationActivity;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.classes.OfflineData;
 
 import java.util.ArrayList;
@@ -63,7 +65,7 @@ public class OfflineAdapter extends RecyclerView.Adapter<OfflineAdapter.ViewHold
                 .into(holder.animeImg);
 
         holder.title.setText(data.getTitle());
-
+        holder.title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

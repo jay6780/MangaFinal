@@ -18,6 +18,8 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import com.m.manga.Adapter.DetailAdapter;
 import com.m.manga.Presenter.MangaDetailPresenter;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.View.MangaDetailContract;
 import com.m.manga.classes.ApiBean;
 
@@ -60,7 +62,6 @@ public class ChapterFragment extends Fragment implements View.OnClickListener, M
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chapter_fragment, container, false);
         appSettingsPrefs = getActivity().getSharedPreferences(PREF, MODE_PRIVATE);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
         ascending = view.findViewById(R.id.ascending);
         descending = view.findViewById(R.id.descending);
         listView = view.findViewById(R.id.ListViewData);
@@ -70,6 +71,8 @@ public class ChapterFragment extends Fragment implements View.OnClickListener, M
         listView.setAdapter(detailAdapter);
         detailPresenter = new MangaDetailPresenter(this);
         detailPresenter.getDetail(Id);
+        ascending.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        descending.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         return view;
     }
 
@@ -85,8 +88,10 @@ public class ChapterFragment extends Fragment implements View.OnClickListener, M
         }
     }
     private void isSort(boolean desc) {
+        int h1 = listView.getHeight();
+        listView.smoothScrollToPositionFromTop(0, h1/2,500);
         if (desc) {
-            boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+            boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
             if (isNightModeOn) {
                 ascending.setTextColor(Color.parseColor("#ffffff"));
                 descending.setTextColor(Color.parseColor("#000000"));
@@ -99,7 +104,7 @@ public class ChapterFragment extends Fragment implements View.OnClickListener, M
             ascending.setBackgroundResource(0);
             detailAdapter.descData(DescList);
         } else {
-            boolean isNightModeOn2 = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+            boolean isNightModeOn2 = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
             if (isNightModeOn2) {
                 descending.setTextColor(Color.parseColor("#ffffff"));
                 ascending.setTextColor(Color.parseColor("#000000"));
@@ -138,26 +143,24 @@ public class ChapterFragment extends Fragment implements View.OnClickListener, M
 
     @Override
     public void loadDetailData(ApiBean apiBean) {
-        try {
-            if (apiBean.getChapters() != null && !apiBean.getChapters().isEmpty()) {
-                chaptersList.clear();
-                chaptersList.addAll(apiBean.getChapters());
-                DescList.addAll(apiBean.getChapters());
-                AscList.addAll(apiBean.getChapters());
-                isSort(false);
-                detailAdapter.ascData(chaptersList);
-            } else {
-                listView.setVisibility(View.GONE);
-                detailAdapter.ascData(new ArrayList<>());
-                Toast.makeText(getContext(), "Empty information", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (apiBean != null && apiBean.getChapters() != null) {
+            chaptersList.clear();
+            chaptersList.addAll(apiBean.getChapters());
+            DescList.addAll(apiBean.getChapters());
+            AscList.addAll(apiBean.getChapters());
+            isSort(false);
+            detailAdapter.ascData(chaptersList);
+        } else {
+            listView.setVisibility(View.GONE);
+            detailAdapter.ascData(new ArrayList<>());
+            Toast.makeText(getContext(), "Empty information", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void refreshData() {
         if (Id != null) {
+            detailAdapter.descData(new ArrayList<>());
+            detailAdapter.ascData(new ArrayList<>());
             detailPresenter.getDetail(Id);
         }
     }

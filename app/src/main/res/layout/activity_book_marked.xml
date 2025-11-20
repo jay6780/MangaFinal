@@ -16,18 +16,15 @@
             android:id="@+id/btn_back"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_centerVertical="true"
             android:layout_marginStart="5dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp" />
+            android:padding="8dp" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:textSize="18sp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_centerInParent="true"
             android:text="BookMarks" />
     </RelativeLayout>
 
@@ -36,8 +33,7 @@
         android:id="@+id/viewSeperator"
         android:layout_width="match_parent"
         android:background="@color/black"
-        android:layout_marginTop="2dp"
-        android:layout_height="2dp"/>
+        android:layout_height="1dp"/>
 
 
 

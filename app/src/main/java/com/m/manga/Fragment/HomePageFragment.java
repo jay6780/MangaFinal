@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,14 +23,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.m.manga.Adapter.GenreAdapter;
-import com.m.manga.Adapter.PageAdapter;
 import com.m.manga.Adapter.PageAdapter2;
 import com.m.manga.Adapter.PageAdapter3;
 import com.m.manga.Presenter.MangaPresenter;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.View.MangaContract;
 import com.m.manga.classes.ApiBean;
 import com.m.manga.classes.GenreData;
@@ -43,10 +46,8 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
     private RecyclerView page_recycler,genre_recycler;
     private MangaContract.Presenter mangaPresenter;
     private ImageView expandIcon;
-    private PageAdapter pageAdapter;
     private PageAdapter2 pageAdapter2;
     private PageAdapter3 pageAdapter3;
-    private List<ApiBean.Data> datalist = new ArrayList<>();
     private List<ApiBean.Manga> mangalist = new ArrayList<>();
     private List<GenreData.Manga> genreList = new ArrayList<>();
     private boolean isLoading = false;
@@ -54,20 +55,21 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
     private SharedPreferences appSettingsPrefs;
     private static final String PREF = "AppSettingsPrefs";
     private static final String NIGHT_MODE = "NightMode";
+    private static final String FIRST_START = "FirstStart";
     private EditText searchEditText;
     private ImageView btn_send;
     private String searchQuery = "";
     private boolean isPageAdapter2 = false;
     private SwipeRefreshLayout swipe;
-    private boolean isRefresh = false;
-    private boolean isError = false;
     private boolean isExpand = false;
     private GenreAdapter genreAdapter;
-    private List<String> genrelist = new ArrayList<>();
+    private List<String> genrelistName = new ArrayList<>();
     private String name = "";
     private RelativeLayout rl_view;
     private int lastPosition;
     private TextView genreTxt;
+    private boolean isNoMore = false;
+    private boolean isDefault = false;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,14 +81,17 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
         mangaPresenter.getGenreList();
 
         appSettingsPrefs = getActivity().getSharedPreferences(PREF, MODE_PRIVATE);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
+
         if (isNightModeOn) {
             btn_send.setImageResource(R.mipmap.send_white);
+            genreTxt.setTextColor(Color.parseColor("#ffffff"));
             searchEditText.setTextColor(Color.parseColor("#ffffff"));
             searchEditText.setHintTextColor(Color.parseColor("#ffffff"));
         } else {
             btn_send.setImageResource(R.mipmap.send_img);
             searchEditText.setHintTextColor(Color.parseColor("#000000"));
+            genreTxt.setTextColor(Color.parseColor("#000000"));
             searchEditText.setTextColor(Color.parseColor("#000000"));
         }
 
@@ -111,42 +116,36 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
             Toast.makeText(getContext(),"Please check network and try again",Toast.LENGTH_SHORT).show();
             return;
         }
-        isRefresh = true;
         page = 1;
         isLoading = false;
-        isError = false;
         isPageAdapter2 = false;
         searchEditText.setText("");
-        datalist.clear();
         mangalist.clear();
         isExpand = false;
         genreList.clear();
         expandIcon.setImageResource(R.mipmap.expand_more);
-        mangaPresenter.getGenreList();
         genre_recycler.setVisibility(View.VISIBLE);
         expandIcon.setVisibility(View.VISIBLE);
         genreAdapter.expand(false);
         genre_recycler.scrollToPosition(0);
+        genreAdapter.firstHighlight(0);
         initRecycler();
     }
 
     private void initRecycler() {
-        page_recycler.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        pageAdapter = new PageAdapter(getContext(), datalist);
-        page_recycler.setAdapter(pageAdapter);
-
         page_recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (isPageAdapter2 || isError) return;
-
                 GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager == null) return;
-                int visibleItemCount = layoutManager.getChildCount();
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                if (!isLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItemPosition + 5)) {
+                if (!isLoading && layoutManager != null &&
+                        layoutManager.findLastVisibleItemPosition() >= genreList.size() - 1) {
+                    if(isPageAdapter2){
+                        return;
+                    }
+                    if(isNoMore){
+                        return;
+                    }
                     page++;
                     loadGenre();
                 }
@@ -181,34 +180,31 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
         btn_send.setOnClickListener(this);
         genre_recycler = view.findViewById(R.id.genre_recycler);
         genre_recycler.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
-        genreAdapter = new GenreAdapter(getContext(),genrelist,this);
+        genreAdapter = new GenreAdapter(getContext(),genrelistName,this);
         genre_recycler.setAdapter(genreAdapter);
         expandIcon.setOnClickListener(this);
         expandIcon.setImageResource(isExpand? R.mipmap.expand_less : R.mipmap.expand_more);
+        genreTxt.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        searchEditText.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
     }
 
     @Override
     public void showError(String message) {
-        isError = true;
+        isNoMore = true;
         Toast.makeText(getContext(),"Please check your internet or contact administrator",Toast.LENGTH_SHORT).show();
         isLoading = false;
     }
 
     @Override
     public void showLoading() {
-        if(!isRefresh){
-            swipe.setRefreshing(true);
-        }
+        swipe.setRefreshing(true);
     }
+
 
     @Override
     public void hideloading() {
-        if (swipe.isRefreshing()) {
-            swipe.setRefreshing(false);
-        }
+        swipe.setRefreshing(false);
     }
-
-
 
 
     @Override
@@ -220,48 +216,34 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
         }else{
             Toast.makeText(getContext(), "No anime in the list", Toast.LENGTH_SHORT).show();
         }
-        if (swipe.isRefreshing()) {
-            swipe.setRefreshing(false);
-        }
     }
 
     @Override
     public void loadGenreList(GenreData apiBean) {
         if (apiBean.getManga() != null && !apiBean.getManga().isEmpty()) {
             genreList.addAll(apiBean.getManga());
-//            Log.d("getMangeGenre","value: "+apiBean.getManga());
             pageAdapter3.notifyDataSetChanged();
             isLoading = false;
         }else{
+            isNoMore = true;
             Toast.makeText(getContext(), "No anime in the list", Toast.LENGTH_SHORT).show();
-        }
-        if (swipe.isRefreshing()) {
-            swipe.setRefreshing(false);
         }
     }
 
     @Override
     public void loadGenreName(ApiBean apiBean) {
         if (apiBean.getGenre() != null && !apiBean.getGenre().isEmpty()) {
-            genrelist.clear();
-            genrelist.addAll(apiBean.getGenre());
+            genrelistName.clear();
+            genrelistName.addAll(apiBean.getGenre());
 
-            Collections.sort(genrelist, (g1, g2) -> {
+            Collections.sort(genrelistName, (g1, g2) -> {
                 if (g1.equalsIgnoreCase("All")) return -1;
                 if (g2.equalsIgnoreCase("All")) return 1;
                 return g1.compareToIgnoreCase(g2);
             });
-
             genreAdapter.firstHighlight(0);
-            genreAdapter.notifyDataSetChanged();
-        }
-
-        if (swipe.isRefreshing()) {
-            swipe.setRefreshing(false);
         }
     }
-
-
 
     @Override
     public void onClick(View v) {
@@ -276,8 +258,7 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
                 isPageAdapter2 = true;
                 isLoading = true;
                 page = 1;
-                datalist.clear();
-                isError = false;
+                isNoMore = false;
                 mangalist.clear();
                 genreList.clear();
                 pageAdapter2 = new PageAdapter2(getContext(), mangalist);
@@ -289,49 +270,53 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
                 break;
             case R.id.expandIcon:
                 isExpand = !isExpand;
-                expandIcon.setImageResource(isExpand ? R.mipmap.expand_less : R.mipmap.expand_more);
-                genreTxt.setVisibility(isExpand? View.VISIBLE : View.GONE);
-                RelativeLayout.LayoutParams params;
-
-                if (isExpand) {
-                    params = new RelativeLayout.LayoutParams(
-                            RelativeLayout.LayoutParams.MATCH_PARENT,
-                            RelativeLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.setMargins(0,0, 5, 0);
-                    params.addRule(RelativeLayout.BELOW, expandIcon.getId());
-
-                    genre_recycler.setLayoutParams(params);
-                    genre_recycler.setLayoutManager(new GridLayoutManager(getContext(), 3));
-                    genreAdapter.expand(true);
-
-                } else {
-                    params = new RelativeLayout.LayoutParams(
-                            RelativeLayout.LayoutParams.MATCH_PARENT,
-                            RelativeLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.addRule(RelativeLayout.LEFT_OF, expandIcon.getId());
-                    params.addRule(RelativeLayout.BELOW, rl_view.getId());
-
-                    genre_recycler.setLayoutParams(params);
-
-                    RelativeLayout.LayoutParams iconParams =
-                            new RelativeLayout.LayoutParams(dpToPx(35),dpToPx(35));
-                    iconParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                    iconParams.addRule(RelativeLayout.BELOW, rl_view.getId());
-                    iconParams.setMargins(0, dpToPx(10), 5, 0);
-                    expandIcon.setLayoutParams(iconParams);
-
-                    genre_recycler.setLayoutManager(
-                            new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
-                    );
-                    genreAdapter.expand(false);
-                }
-                genre_recycler.scrollToPosition(lastPosition);
+                ExpandView(isExpand);
                 break;
 
 
         }
+    }
+
+    private void ExpandView(boolean isExpand){
+        expandIcon.setImageResource(isExpand ? R.mipmap.expand_less : R.mipmap.expand_more);
+        genreTxt.setVisibility(isExpand? View.VISIBLE : View.GONE);
+        RelativeLayout.LayoutParams params;
+
+        if (isExpand) {
+            params = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0,0, 5, 0);
+            params.addRule(RelativeLayout.BELOW, expandIcon.getId());
+
+            genre_recycler.setLayoutParams(params);
+            genre_recycler.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+            genreAdapter.expand(true);
+
+        } else {
+            params = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.addRule(RelativeLayout.LEFT_OF, expandIcon.getId());
+            params.addRule(RelativeLayout.BELOW, rl_view.getId());
+
+            genre_recycler.setLayoutParams(params);
+
+            RelativeLayout.LayoutParams iconParams =
+                    new RelativeLayout.LayoutParams(dpToPx(35),dpToPx(35));
+            iconParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+            iconParams.addRule(RelativeLayout.BELOW, rl_view.getId());
+            iconParams.setMargins(0, dpToPx(3), 5, 0);
+            expandIcon.setLayoutParams(iconParams);
+
+            genre_recycler.setLayoutManager(
+                    new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
+            );
+            genreAdapter.expand(false);
+        }
+        genre_recycler.scrollToPosition(lastPosition);
     }
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
@@ -343,14 +328,11 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
       if(genreName.isEmpty()){
           return;
       }
-
         name = genreName;
         page = 1;
         genreList.clear();
-        datalist.clear();
         isPageAdapter2 = false;
-        isRefresh = false;
-        isError = false;
+        isNoMore = false;
         mangaPresenter.loadGenre(genreName.toLowerCase().trim(),page);
         pageAdapter3 = new PageAdapter3(getContext(), genreList);
         page_recycler.setLayoutManager(new GridLayoutManager(getContext(), 2));
@@ -364,10 +346,9 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
             genre_recycler.setLayoutManager(
                     new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
             );
-            isExpand = false;
-            expandIcon.setImageResource(R.mipmap.expand_more);
             genre_recycler.scrollToPosition(position);
             lastPosition = position;
+            ExpandView(false);
         }
 
     }
@@ -388,7 +369,5 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
     private void scrollRecyclerViewBy(int pixels) {
         page_recycler.smoothScrollBy(0, pixels);
     }
-
-
 
 }

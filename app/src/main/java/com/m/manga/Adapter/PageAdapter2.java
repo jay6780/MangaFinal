@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.m.manga.Activity.InformationActivity;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.classes.ApiBean;
 
 import java.util.List;
@@ -49,7 +51,7 @@ public class PageAdapter2 extends RecyclerView.Adapter<PageAdapter2.ViewHolder> 
     public void onBindViewHolder(ViewHolder holder, final int position) {
         ApiBean.Manga data = dataList.get(position);
         holder.title.setTextColor(Color.parseColor("#262626"));
-
+        holder.title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         Glide.with(context)
                 .asBitmap().
                 load(data.getImgUrl())

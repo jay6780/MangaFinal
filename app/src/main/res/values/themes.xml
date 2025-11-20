@@ -6,12 +6,12 @@
         <item name="colorOnTertiary">#EAEFEF</item>
         <item name="colorSecondary">@color/black</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="fontFamily">@font/edu</item>
+        <item name="fontFamily">@font/stacksans</item>
         <item name="android:textColor">@color/black</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
-
         <item name="android:statusBarColor" tools:targetApi="l">#EAEFEF</item>
     </style>
+
 </resources>

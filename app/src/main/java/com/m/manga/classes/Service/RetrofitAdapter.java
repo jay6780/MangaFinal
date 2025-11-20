@@ -18,7 +18,7 @@ public class RetrofitAdapter {
     private static final String BASE_URL = "https://gomanga-api.vercel.app/api/";
 
     public static synchronized Retrofit getInstance() {
-        boolean isdev = false;
+        boolean isdev = true;
 
         OkHttpClient timeout = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)

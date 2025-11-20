@@ -17,6 +17,8 @@ import com.google.gson.reflect.TypeToken;
 import com.m.manga.Adapter.OfflineAdapter;
 import com.m.manga.Adapter.PageAdapter;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.classes.OfflineData;
 
 import java.lang.reflect.Type;
@@ -48,8 +50,9 @@ public class BookMarkedActivity extends AppCompatActivity {
         btn_back.setOnClickListener(v -> finish());
         bookmarkRecycler = findViewById(R.id.bookmarkRecycler);
         appSettingsPrefs = getSharedPreferences(PREF, MODE_PRIVATE);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
-
+        book_mark_emptyTxt.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
         if(isNightModeOn){
             ll_bg.setBackgroundColor(Color.parseColor("#262626"));
             title.setTextColor(Color.parseColor("#ffffff"));

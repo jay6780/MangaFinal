@@ -15,11 +15,11 @@ import android.widget.TextView;
 
 import com.m.manga.Activity.ViewChapterActivity;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
 import com.m.manga.classes.ApiBean;
 import com.m.manga.classes.AppConstant;
-import com.m.manga.classes.SPUtils;
+import com.m.manga.Utils.SPUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -107,7 +107,7 @@ public class DetailAdapter extends BaseAdapter {
         }
 
         ApiBean.Chapters data = chaptersList.get(position);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
 
         if(isNightModeOn) {
             holder.chapterId.setTextColor(Color.parseColor("#ffffff"));
@@ -127,6 +127,11 @@ public class DetailAdapter extends BaseAdapter {
         holder.views.setText("Views: "+data.getViews());
         holder.uploaded.setText(data.getUploaded());
         holder.timestamp.setText(data.getTimestamp());
+
+        holder.chapterId.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        holder.views.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        holder.uploaded.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        holder.timestamp.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
 
         convertView.setOnClickListener(v -> {
             Intent openanime = new Intent(context, ViewChapterActivity.class);

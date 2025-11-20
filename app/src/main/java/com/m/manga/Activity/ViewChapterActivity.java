@@ -62,7 +62,7 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
         delete_btn.setVisibility(View.VISIBLE);
         viewSeperator = findViewById(R.id.viewSeperator);
         appSettingsPrefs = getSharedPreferences(PREF, MODE_PRIVATE);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
         updateUi(isNightModeOn);
         delete_btn.setOnClickListener(v -> Refresh());
         btn_back5.setOnClickListener(v -> finish());

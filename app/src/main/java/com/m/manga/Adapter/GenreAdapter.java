@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.classes.Listerner.GenreNameListerner;
 
 import java.util.List;
@@ -74,7 +76,7 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.ViewHolder> 
         }
         holder.genre_name.setLayoutParams(params);
 
-
+        holder.genre_name.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         holder.genre_name.setText(genreName);
 
         holder.itemView.setOnClickListener(v -> {

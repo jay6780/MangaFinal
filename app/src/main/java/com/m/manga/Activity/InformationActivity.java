@@ -7,12 +7,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
@@ -20,12 +20,15 @@ import com.bumptech.glide.Glide;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
+import com.google.gson.Gson;
 import com.m.manga.Adapter.InformationAdapter;
 import com.m.manga.Fragment.ChapterFragment;
-import com.m.manga.Fragment.InformationFragment;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
+import com.m.manga.Utils.WindowUtils;
 import com.m.manga.classes.AppConstant;
-import com.m.manga.classes.SPUtils;
+import com.m.manga.classes.OfflineData;
 
 import java.util.ArrayList;
 
@@ -37,29 +40,26 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
     private SharedPreferences appSettingsPrefs;
     private static final String PREF = "AppSettingsPrefs";
     private static final String NIGHT_MODE = "NightMode";
-    private LinearLayout linear_b2;
-    private boolean isExpanded = false;
+    private RelativeLayout rl_bg;
     private ImageView btn_back5;
     private String Id;
     private ImageView refresh_btn;
     private CommonTabLayout dashboard_tab;
     private String[] mTitles;
     private ViewPager viewPager;
-
+    private boolean isBookMark = false;
+    private AppCompatButton btn_bookmark;
+    private ArrayList<OfflineData> offlineDataArrayList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_information);
         getSupportActionBar().hide();
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
         thumbnail = findViewById(R.id.thumbnail);
-
+        btn_bookmark = findViewById(R.id.btn_bookmark);
         btn_back5 = findViewById(R.id.btn_back5);
         dashboard_tab = findViewById(R.id.dashboard_tab);
-        linear_b2 = findViewById(R.id.linear_b2);
+        rl_bg = findViewById(R.id.rl_bg);
         refresh_btn = findViewById(R.id.refresh_btn);
         viewPager = findViewById(R.id.viewPager);
         thumbUrl = getIntent().getStringExtra("thumbUrl");
@@ -67,6 +67,8 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
         animeTitle = getIntent().getStringExtra("animeTitle");
         Id = getIntent().getStringExtra("Id");
 
+        dashboard_tab.setTextsize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        btn_bookmark.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         InformationAdapter adapter = new InformationAdapter(getSupportFragmentManager(), Id,animeTitle,desc,thumbUrl);
         viewPager.setAdapter(adapter);
         refresh_btn.setOnClickListener(this);
@@ -78,13 +80,12 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
         };
 
         appSettingsPrefs = getSharedPreferences(PREF, MODE_PRIVATE);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
 
         SPUtils.getInstance().put(AppConstant.mangaId, Id);
 
         Glide.with(this)
                 .load(thumbUrl)
-                .centerCrop()
                 .into(thumbnail);
 
         updateUi(isNightModeOn);
@@ -92,6 +93,30 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
         refresh_btn.setBackgroundResource(R.drawable.circle_bg);
         refresh_btn.setImageResource(R.mipmap.refresh_black);
         btn_back5.setBackgroundResource(R.drawable.circle_bg);
+
+        btn_bookmark.setOnClickListener(this);
+        btn_bookmark.setTextColor(isBookMark ? getResources().getColor(R.color.black) : getResources().getColor(R.color.white));
+        btn_bookmark.setText(isBookMark ? "Bookmarked" : "Not Bookmarked");
+        btn_bookmark.setBackgroundResource(isBookMark ? R.drawable.bg_unselected : R.drawable.bg_selected);
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("offlineBookmark", null);
+        if (json != null) {
+            java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<ArrayList<OfflineData>>() {}.getType();
+            offlineDataArrayList = gson.fromJson(json, type);
+
+            for (OfflineData data : offlineDataArrayList) {
+                if (data.getId().equals(Id)) {
+                    isBookMark = true;
+                    break;
+                }
+            }
+        } else {
+            offlineDataArrayList = new ArrayList<>();
+        }
+        updateBookmarkUi();
 
 
         ArrayList<CustomTabEntity> list = new ArrayList<>();
@@ -135,6 +160,7 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void onPageSelected(int position) {
                 refresh_btn.setVisibility(position == 0? View.GONE:View.VISIBLE);
+                btn_bookmark.setVisibility(position == 0? View.VISIBLE:View.GONE);
                 dashboard_tab.setCurrentTab(position);
             }
 
@@ -143,21 +169,22 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
         });
 
     }
+    private void updateBookmarkUi() {
+        btn_bookmark.setTextColor(isBookMark ? getResources().getColor(R.color.black) : getResources().getColor(R.color.white));
+        btn_bookmark.setText(isBookMark ? "Bookmarked" : "Not Bookmarked");
+        btn_bookmark.setBackgroundResource(isBookMark ? R.drawable.bg_unselected : R.drawable.bg_selected);
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        );
+        new WindowUtils(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        );
+        new WindowUtils(this);
     }
 
     private boolean isNetworkAvailable() {
@@ -182,10 +209,10 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
         if (isDarkMode) {
             dashboard_tab.setTextUnselectColor(getResources().getColor(R.color.white));
             btn_back5.setBackgroundResource(R.drawable.circle_bg);
-            linear_b2.setBackgroundColor(Color.parseColor("#262626"));
+            rl_bg.setBackgroundColor(Color.parseColor("#262626"));
         } else {
             dashboard_tab.setTextUnselectColor(getResources().getColor(R.color.black));
-            linear_b2.setBackgroundColor(Color.parseColor("#EAEFEF"));
+            rl_bg.setBackgroundColor(Color.parseColor("#EAEFEF"));
 
         }
     }
@@ -198,6 +225,51 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.refresh_btn:
                 Refresh();
+                break;
+            case R.id.btn_bookmark:
+                SharedPreferences sharedPreferences = getSharedPreferences("shared preferences", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                Gson gson = new Gson();
+
+                String json = sharedPreferences.getString("offlineBookmark", null);
+                if (json != null) {
+                    java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<ArrayList<OfflineData>>() {
+                    }.getType();
+                    offlineDataArrayList = gson.fromJson(json, type);
+                } else {
+                    offlineDataArrayList = new ArrayList<>();
+                }
+
+                if (!isBookMark) {
+                    boolean alreadyExists = false;
+                    for (OfflineData data : offlineDataArrayList) {
+                        if (data.getId().equals(Id)) {
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyExists) {
+                        offlineDataArrayList.add(new OfflineData(desc, Id, animeTitle, thumbUrl));
+                        Toast.makeText(this, "Bookmarked", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    for (int i = 0; i < offlineDataArrayList.size(); i++) {
+                        if (offlineDataArrayList.get(i).getId().equals(Id)) {
+                            offlineDataArrayList.remove(i);
+                            Toast.makeText(this, "Bookmark removed", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    }
+                }
+                String updatedJson = gson.toJson(offlineDataArrayList);
+                editor.putString("offlineBookmark", updatedJson);
+                editor.apply();
+
+                isBookMark = !isBookMark;
+                btn_bookmark.setTextColor(isBookMark ? getResources().getColor(R.color.black) : getResources().getColor(R.color.white));
+                btn_bookmark.setText(isBookMark ? "Bookmarked" : "Not Bookmarked");
+                btn_bookmark.setBackgroundResource(isBookMark ? R.drawable.bg_unselected : R.drawable.bg_selected);
+
                 break;
         }
     }

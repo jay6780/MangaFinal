@@ -28,17 +28,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center"
             android:layout_marginEnd="10dp"
             android:orientation="vertical">
             <TextView
-                android:id="@+id/yakoltxt"
+                android:id="@+id/tv_appName"
                 android:layout_width="wrap_content"
                 android:textSize="20sp"
                 android:text="Free Manga"
                 android:layout_height="wrap_content"/>
             <TextView
-                android:id="@+id/ccto"
+                android:id="@+id/tv_ctto"
                 android:layout_width="wrap_content"
                 android:textSize="15sp"
                 android:text="Api owner: Patrick Cosmos"
@@ -106,7 +105,7 @@
                 android:layout_marginEnd="5dp"
                 android:src="@mipmap/moonlight" />
             <TextView
-                android:id="@+id/value_dark"
+                android:id="@+id/tv_value_dark"
                 android:layout_width="wrap_content"
                 android:textSize="18sp"
                 android:layout_gravity="center"
@@ -143,5 +142,31 @@
 
 
 
+        <LinearLayout
+            android:id="@+id/ll_changeFont"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/iv_font"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:padding="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"/>
+            <TextView
+                android:id="@+id/tv_font"
+                android:layout_width="wrap_content"
+                android:textSize="18sp"
+                android:text="Font size"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginEnd="10dp"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
     </LinearLayout>
+
 </LinearLayout>

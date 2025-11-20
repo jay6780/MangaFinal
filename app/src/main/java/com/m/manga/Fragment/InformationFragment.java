@@ -9,23 +9,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
-import com.google.gson.Gson;
 import com.m.manga.Presenter.MangaDetailPresenter;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.View.MangaDetailContract;
 import com.m.manga.classes.ApiBean;
-import com.m.manga.classes.OfflineData;
 
-import java.util.ArrayList;
-
-public class InformationFragment extends Fragment implements  MangaDetailContract.View, View.OnClickListener {
+public class InformationFragment extends Fragment implements  MangaDetailContract.View {
     private TextView description, anime_title, genres;
-    private AppCompatButton btn_bookmark;
     private static final String DESC = "desc";
     private static final String ID = "Id";
     private static final String Title = "title";
@@ -37,9 +32,6 @@ public class InformationFragment extends Fragment implements  MangaDetailContrac
     private SharedPreferences appSettingsPrefs;
     private static final String PREF = "AppSettingsPrefs";
     private static final String NIGHT_MODE = "NightMode";
-    private boolean isBookMark = false;
-
-    private ArrayList<OfflineData> offlineDataArrayList;
 
     public static InformationFragment newInstance(String id, String desc, String title, String thumbUrl) {
         InformationFragment fragment = new InformationFragment();
@@ -70,58 +62,33 @@ public class InformationFragment extends Fragment implements  MangaDetailContrac
         description = view.findViewById(R.id.description);
         anime_title = view.findViewById(R.id.anime_title);
         genres = view.findViewById(R.id.genres);
-        btn_bookmark = view.findViewById(R.id.btn_bookmark);
         anime_title.setText("Title: " + title);
         if (desc == null) {
             description.setVisibility(View.GONE);
         }
+
+        description.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        anime_title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
+        genres.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         description.setText(desc);
 
         appSettingsPrefs = getActivity().getSharedPreferences(PREF, MODE_PRIVATE);
-        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, true);
+        boolean isNightModeOn = appSettingsPrefs.getBoolean(NIGHT_MODE, false);
         updateUi(isNightModeOn);
 
         detailPresenter = new MangaDetailPresenter(this);
         detailPresenter.getDetail(id);
 
-        btn_bookmark.setOnClickListener(this);
-        btn_bookmark.setTextColor(isBookMark ? getResources().getColor(R.color.black) : getResources().getColor(R.color.white));
-        btn_bookmark.setText(isBookMark ? "Bookmarked" : "Not Bookmarked");
-        btn_bookmark.setBackgroundResource(isBookMark ? R.drawable.bg_unselected : R.drawable.bg_selected);
-
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("shared preferences", MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("offlineBookmark", null);
-        if (json != null) {
-            java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<ArrayList<OfflineData>>() {}.getType();
-            offlineDataArrayList = gson.fromJson(json, type);
-
-            for (OfflineData data : offlineDataArrayList) {
-                if (data.getId().equals(id)) {
-                    isBookMark = true;
-                    break;
-                }
-            }
-        } else {
-            offlineDataArrayList = new ArrayList<>();
-        }
-        updateBookmarkUi();
-        
         return view;
     }
 
-    private void updateBookmarkUi() {
-        btn_bookmark.setTextColor(isBookMark ? getResources().getColor(R.color.black) : getResources().getColor(R.color.white));
-        btn_bookmark.setText(isBookMark ? "Bookmarked" : "Not Bookmarked");
-        btn_bookmark.setBackgroundResource(isBookMark ? R.drawable.bg_unselected : R.drawable.bg_selected);
-    }
-
-
     private void updateUi(boolean isDarkMode) {
         if (isDarkMode) {
+            genres.setTextColor(Color.parseColor("#ffffff"));
             description.setTextColor(Color.parseColor("#ffffff"));
             anime_title.setTextColor(Color.parseColor("#ffffff"));
         } else {
+            genres.setTextColor(Color.parseColor("#000000"));
             description.setTextColor(Color.parseColor("#000000"));
             anime_title.setTextColor(Color.parseColor("#000000"));
 
@@ -159,56 +126,4 @@ public class InformationFragment extends Fragment implements  MangaDetailContrac
         }
 
     }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_bookmark:
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("shared preferences", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                Gson gson = new Gson();
-
-                String json = sharedPreferences.getString("offlineBookmark", null);
-                if (json != null) {
-                    java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<ArrayList<OfflineData>>() {
-                    }.getType();
-                    offlineDataArrayList = gson.fromJson(json, type);
-                } else {
-                    offlineDataArrayList = new ArrayList<>();
-                }
-
-                if (!isBookMark) {
-                    boolean alreadyExists = false;
-                    for (OfflineData data : offlineDataArrayList) {
-                        if (data.getId().equals(id)) {
-                            alreadyExists = true;
-                            break;
-                        }
-                    }
-                    if (!alreadyExists) {
-                        offlineDataArrayList.add(new OfflineData(desc, id, title, thumbUrl));
-                        Toast.makeText(getContext(), "Bookmarked", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    for (int i = 0; i < offlineDataArrayList.size(); i++) {
-                        if (offlineDataArrayList.get(i).getId().equals(id)) {
-                            offlineDataArrayList.remove(i);
-                            Toast.makeText(getContext(), "Bookmark removed", Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    }
-                }
-                String updatedJson = gson.toJson(offlineDataArrayList);
-                editor.putString("offlineBookmark", updatedJson);
-                editor.apply();
-
-                isBookMark = !isBookMark;
-                btn_bookmark.setTextColor(isBookMark ? getResources().getColor(R.color.black) : getResources().getColor(R.color.white));
-                btn_bookmark.setText(isBookMark ? "Bookmarked" : "Not Bookmarked");
-                btn_bookmark.setBackgroundResource(isBookMark ? R.drawable.bg_unselected : R.drawable.bg_selected);
-
-                break;
-        }
-    }
-
 }

@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.m.manga.Activity.InformationActivity;
 import com.m.manga.R;
+import com.m.manga.Utils.Constants;
+import com.m.manga.Utils.SPUtils;
 import com.m.manga.classes.ApiBean;
 import com.m.manga.classes.GenreData;
 
@@ -22,6 +24,7 @@ import java.util.List;
 public class PageAdapter3 extends RecyclerView.Adapter<PageAdapter3.ViewHolder> {
     private List<GenreData.Manga> dataList;
     private Context context;
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView animeImg;
         TextView title;
@@ -50,7 +53,7 @@ public class PageAdapter3 extends RecyclerView.Adapter<PageAdapter3.ViewHolder> 
     public void onBindViewHolder(ViewHolder holder, final int position) {
         GenreData.Manga data = dataList.get(position);
         holder.title.setTextColor(Color.parseColor("#262626"));
-
+        holder.title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         Glide.with(context)
                 .asBitmap().
                 load(data.getImage())

@@ -2,6 +2,7 @@ package com.m.manga.classes.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.m.manga.Utils.Constants;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +19,6 @@ public class RetrofitAdapter {
     private static final String BASE_URL = "https://gomanga-api.vercel.app/api/";
 
     public static synchronized Retrofit getInstance() {
-        boolean isdev = true;
 
         OkHttpClient timeout = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
@@ -37,7 +37,7 @@ public class RetrofitAdapter {
                 gson = new GsonBuilder().setLenient().create();
             }
 
-            if(isdev){
+            if(Constants.isDev){
                 retrofit = new Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .client(okHttpClient)

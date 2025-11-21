@@ -33,6 +33,7 @@ import com.m.manga.Presenter.MangaPresenter;
 import com.m.manga.R;
 import com.m.manga.Utils.Constants;
 import com.m.manga.Utils.SPUtils;
+import com.m.manga.Utils.dialog.DialogUtils;
 import com.m.manga.View.MangaContract;
 import com.m.manga.classes.ApiBean;
 import com.m.manga.classes.GenreData;
@@ -101,13 +102,9 @@ public class HomePageFragment extends Fragment implements MangaContract.View, Vi
                 Refresh();
             }
         });
-
-
         return view;
 
     }
-
-
     private void Refresh() {
         if(!isNetworkAvailable()){
             if (swipe.isRefreshing()) {

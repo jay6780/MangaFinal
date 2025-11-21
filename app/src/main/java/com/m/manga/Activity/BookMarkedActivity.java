@@ -23,6 +23,8 @@ import com.m.manga.classes.OfflineData;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class BookMarkedActivity extends AppCompatActivity {
     private LinearLayout ll_bg,ll_empty;
@@ -87,8 +89,19 @@ public class BookMarkedActivity extends AppCompatActivity {
         if (offlineDataArrayList == null) {
             offlineDataArrayList = new ArrayList<>();
         }
+        sortByTimestampDescending();
         updateUi();
     }
+
+    private void sortByTimestampDescending() {
+        Collections.sort(offlineDataArrayList, new Comparator<OfflineData>() {
+            @Override
+            public int compare(OfflineData o1, OfflineData o2) {
+                return Long.compare(o2.getTimeStamp(), o1.getTimeStamp());
+            }
+        });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -105,8 +118,6 @@ public class BookMarkedActivity extends AppCompatActivity {
             ll_empty.setVisibility(View.GONE);
             bookmarkRecycler.setVisibility(View.VISIBLE);
         }
-
     }
-
 
 }

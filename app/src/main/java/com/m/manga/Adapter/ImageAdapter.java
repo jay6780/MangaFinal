@@ -36,7 +36,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             super(view);
             image_anime = view.findViewById(R.id.image_anime);
             page_number = view.findViewById(R.id.page_number);
-            image_anime.setPadding(0, 0, 0, 0);
         }
     }
 
@@ -60,7 +59,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
 //        Log.d("Image_url","value: "+image);
 
-
         RequestOptions requestOptions = new RequestOptions()
                 .skipMemoryCache(true)
                 .placeholder(R.mipmap.app_icon)
@@ -77,7 +75,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model,
                                                 Target<Bitmap> target, boolean isFirstResource) {
-                        // Handle failure if needed
                         return false;
                     }
 

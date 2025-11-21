@@ -24,6 +24,8 @@ import com.m.manga.Presenter.MangaImagePresenter;
 import com.m.manga.R;
 import com.m.manga.Utils.Constants;
 import com.m.manga.Utils.SPUtils;
+import com.m.manga.Utils.dialog.DialogUtils;
+import com.m.manga.Utils.views.PinchRecyclerView;
 import com.m.manga.View.MangaDetailUrlsContract;
 import com.m.manga.classes.ApiBean;
 import com.m.manga.classes.MangaImageBean;
@@ -32,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ViewChapterActivity extends AppCompatActivity implements MangaDetailUrlsContract.View {
-    private RecyclerView chapterImageRecycler;
+    private PinchRecyclerView chapterImageRecycler;
     private MangaDetailUrlsContract.Presenter imageUrlPresenter;
     private String chapterId;
     private String Id;
@@ -73,6 +75,7 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
         btn_back5.setOnClickListener(v -> finish());
         title.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
     }
+
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -155,8 +158,15 @@ public class ViewChapterActivity extends AppCompatActivity implements MangaDetai
       if(apiBean.getImageUrls()!=null && !apiBean.getImageUrls().isEmpty()){
           imageUrls.addAll(apiBean.getImageUrls());
           imageAdapter.notifyDataSetChanged();
+          initHint();
       }else{
           Toast.makeText(getApplicationContext(), "Empty image list", Toast.LENGTH_SHORT).show();
       }
+    }
+    private void initHint() {
+        if(SPUtils.getInstance().getBoolean(Constants.SHOWDIALOG)){
+            return;
+        }
+        new DialogUtils().showHint(this);
     }
 }

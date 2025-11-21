@@ -69,7 +69,7 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
 
         dashboard_tab.setTextsize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
         btn_bookmark.setTextSize(SPUtils.getInstance().getFloat(Constants.fontSize,13f));
-        InformationAdapter adapter = new InformationAdapter(getSupportFragmentManager(), Id,animeTitle,desc,thumbUrl);
+        InformationAdapter adapter = new InformationAdapter(getSupportFragmentManager(), Id,desc);
         viewPager.setAdapter(adapter);
         refresh_btn.setOnClickListener(this);
         btn_back5.setOnClickListener(this);
@@ -249,7 +249,7 @@ public class InformationActivity extends AppCompatActivity implements View.OnCli
                         }
                     }
                     if (!alreadyExists) {
-                        offlineDataArrayList.add(new OfflineData(desc, Id, animeTitle, thumbUrl));
+                        offlineDataArrayList.add(new OfflineData(System.currentTimeMillis(),desc, Id, animeTitle, thumbUrl));
                         Toast.makeText(this, "Bookmarked", Toast.LENGTH_SHORT).show();
                     }
                 } else {

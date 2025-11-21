@@ -8,6 +8,26 @@ public class ApiBean {
     private List<Chapters> chapters;
     private List<String> genre;
     private List<String> genres;
+    private String id;
+    private String title;
+    private String imageUrl;
+    private String status;
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getStatus() {
+        return status;
+    }
 
     public List<String> getGenres() {
         return genres;

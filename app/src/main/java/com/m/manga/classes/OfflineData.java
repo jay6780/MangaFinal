@@ -5,12 +5,14 @@ public class OfflineData {
     private String Id;
     private String title;
     private String thumbUrl;
+    private long timeStamp;
 
-    public OfflineData(String desc, String Id, String title,String thumbUrl){
+    public OfflineData(long timeStamp,String desc, String Id, String title,String thumbUrl){
         this.desc = desc;
         this.Id = Id;
         this.title = title;
         this.thumbUrl = thumbUrl;
+        this.timeStamp = timeStamp;
     }
 
     public String getTitle() {
@@ -43,5 +45,9 @@ public class OfflineData {
 
     public void setThumbUrl(String thumbUrl) {
         this.thumbUrl = thumbUrl;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
     }
 }

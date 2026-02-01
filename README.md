@@ -1,0 +1,12 @@
+Download link: https://apkpure.com/manga/com.m.manga
+![photo_4_2026-02-01_21-27-38](https://github.com/user-attachments/assets/99a9497b-cc13-4b77-9d03-d8b66fbdc240)
+![photo_3_2026-02-01_21-27-38](https://github.com/user-attachments/assets/46012774-8967-4969-8226-859df556d0fe)
+![photo_2_2026-02-01_21-27-38](https://github.com/user-attachments/assets/0a994d6a-86a5-432f-a01f-21d52fc6db86)
+![photo_1_2026-02-01_21-27-38](https://github.com/user-attachments/assets/f025c473-c737-4ccf-bd2e-b855fa6fd0b5)
+![photo_11_2026-02-01_21-27-38](https://github.com/user-attachments/assets/d9dfcaf7-c4dc-461c-8376-6d89050cf41c)
+![photo_10_2026-02-01_21-27-38](https://github.com/user-attachments/assets/03fbc296-e25a-4a0e-a8cf-e216352a28c1)
+![photo_9_2026-02-01_21-27-38](https://github.com/user-attachments/assets/7fa2d784-e0b1-4451-bf16-4ddf603f4976)
+![photo_8_2026-02-01_21-27-38](https://github.com/user-attachments/assets/7d914bd6-3d5f-437b-89bd-07da6124baa2)
+![photo_7_2026-02-01_21-27-38](https://github.com/user-attachments/assets/17dd71af-edd3-47ec-8656-a3417a233c1e)
+![photo_6_2026-02-01_21-27-38](https://github.com/user-attachments/assets/1a7226e4-da5b-458c-8630-9515079b1022)
+![photo_5_2026-02-01_21-27-38](https://github.com/user-attachments/assets/e24019be-dbb7-4a99-ad8c-e490ae086166)
